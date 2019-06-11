@@ -1,0 +1,162 @@
+/*
+ * Pour que le contenu prenne toute la page
+ */
+html {
+   height: 100%;
+}
+/*
+ * Dégradé bleue d'arrière plan (linear-gradien) + no-repeat pour ne pas que le dégradé continu après l'écran
+ * Définition de la police (font-family), de sa couleur (color) et de son ombre (tex-shadow)
+ */
+body {
+    background : linear-gradient(#66ccff,#006666);
+    background-repeat: no-repeat ;
+    color : #FFFFFF;
+    font-family:Roboto,sans-serif;
+    text-shadow: 2px 2px #000000;
+}
+/*
+ * alignement du h2 et agrandissement de sa taille (font-size)
+ */
+h2 {
+    text-align : center;
+    font-size: 3.4em;
+    margin-bottom:5%
+}
+/*
+ * container d'image, pour centrer les images
+ */
+figure{
+    text-align : center;
+    padding:1%;
+}
+/**
+ * définition du bouton de switch pour basculer entre montant €uro donné, montant devise voulu
+ * definition de l'icone de souris (cursor)
+ * d'un bord et d'une ombre (box-shadow)
+ */
+#switch{
+    width : 5%;
+    box-shadow: 3px 2px #848484;
+    cursor : pointer;
+    border : 1px solid #424242;
+}
+/*
+ * agrandissement de l'ombre au survol du bouton (hover)
+ */ 
+#switch:hover{
+    box-shadow: 5px 3px #848484;
+}
+/*
+ * simulation d'un enfoncement d'un bouton au click (active)
+ */
+#switch:active{
+    border : none;
+    box-shadow: none;
+    margin-bottom:2px;
+}
+/*
+ * alignement centré du container
+ */
+div {
+    text-align:center;
+}
+/*
+ *mise en gras des label et ajout d'espace interne au conteneur label(padding)
+ */
+label {
+    font-weight:bold;
+    font-size:100%;
+    padding: 1% 1%;
+    width:10%;
+}
+input {
+	width:10%;
+}
+/**
+ * espacement du conteneur convertisseur (externe : margin)
+ */
+#convertisseur {
+    margin-top:14%;
+}
+/**
+ * on fait en sorte de ne pas voir l'input du calcul
+ */
+#calcul{
+    background: transparent;
+    border:none;
+    color : #FFFFFF;
+    font-family:Roboto,sans-serif;
+    font-weight:bold;
+    text-shadow: 2px 2px #000000;
+}
+
+/**
+ * definition du container des images
+ * mise en position absolue et top 0 pour qu'il commence en haut à gauche
+ * definition des tailles pour qu'il prenne tout l'espace écran
+ * definition d'un index pour qu'il passe derrière les autres container à l'affichage (z-index)
+ * ne pas agrandir l'écran si un elm interne (img par exemple) dépasse (overflow)
+ */
+#cartes-postales{
+    width : 100%;
+    height : 100%;
+    position : absolute;
+    top : 0;
+    z-index : -1;
+    overflow : hidden;
+}
+/**
+ * définition d'une bande blanche autour des images pour avoir l'impression de carte postale (border)
+ * ajout d'ombre
+ * rotation de l'image (rotate)
+ * definition de la taille des carte postale
+ * mise en position absolu pour que ça commence en haut à gauche
+ */
+.cartes img{
+    box-shadow: 3px 2px #848484;
+    border : 10px solid #FFFFFF;
+    width : 30%;
+    transform: rotate(-40deg);
+    position : absolute;
+    top:15%;
+    left:0;
+}
+/*
+ * déplacement des autres cartes et autre rotation
+ */
+.cartes:nth-child(1) img{
+
+    transform: rotate(10deg);
+    margin-top:26%;
+    margin-left:5%;
+}
+.cartes:nth-child(2) img{
+
+    transform: rotate(25deg);
+    margin-top:17%;
+    margin-left:25%;
+}
+.cartes:nth-child(3) img{
+
+    transform: rotate(-18deg);
+    margin-top:28%;
+    margin-left:50%;
+}
+.cartes:nth-child(4) img{
+
+    transform: rotate(30deg);
+    margin-left:65%;
+    top:10%
+}
+.cartes:nth-child(5) img{
+    transform: rotate(0deg);
+    margin-top:0;
+    margin-left:33%;
+    top:3%
+}
+.cartes:nth-child(6) img{
+    margin-top:30%;
+    margin-left:70%;
+    top:10%
+}
