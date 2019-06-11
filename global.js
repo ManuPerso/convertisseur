@@ -26,13 +26,14 @@ var Taux = function (_React$Component) {
             //sauvegarde du contexte courant pour pouvoir l'utiliser à l'interieur du callback de retour de l'appel ajax ($.get)
             var component = _this;
             items = [];
+            //récupération des nom des devises
             $.get(api + 'symbols' + query_key, function (data) {
-                //Création d'une clé nécessaire à l'affichage des options (évite le warning de React)
-                //restructuration des données pour ne conserver que l'essentiel.
                 $.map(data.symbols, function (name, code) {
-
+                    //recuperation des valeurs des devises
                     $.get(api + 'latest' + query_key + '&symbols=' + code, function (res) {
                         $.map(res.rates, function (value, code) {
+                            //Création d'une clé nécessaire à l'affichage des options (évite le warning de React)
+                            //restructuration des données pour ne conserver que l'essentiel.
                             item = { key: code, code: code, name: name, value: value };
                             items[items.length] = item;
                             //Mise à jour des variables locales.
