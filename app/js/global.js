@@ -2,8 +2,7 @@
  * Definition de constante pour l'api fixer.io
  */
 const api='http://data.fixer.io/api/';
-//const query_key='?access_key=ba8eb9bd4a1486757cd3982dc3bdbb3c';
-const query_key='?access_key=0eae0066a65fb9359634f1aec399ba99';
+const query_key='?access_key=64002fb6dcfb7e1921dd492f5b3c8393';
 /**
  * Class servant à récupérer les taux sur fixer.io
  */
