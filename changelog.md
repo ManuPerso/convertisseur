@@ -1,3 +1,5 @@
+## v2019.06.11-2
+- MR, Mise à jour du README
 ## v2019.06.11-1
 - MR, Mise à jour des commentaires et regénération du fichier global.js par babel
 ## v2019.06.11
