@@ -1,3 +1,5 @@
+## v2019.06.11-3
+- MR, Correction orthographique dans README
 ## v2019.06.11-2
 - MR, Mise à jour du README
 ## v2019.06.11-1
