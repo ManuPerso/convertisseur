@@ -44,14 +44,15 @@ class Taux extends React.Component {
                             });
                         });
                     });
-		}else{
-		    //l'Api a renvoyé un status error, on log l'erreur et on affiche
-		    component.setState({
-		        isLoaded:false,
-		        error : {'code' : data.error.code, 'message' : data.error.info }
-		    })
-		}
-            })
+            	})
+	    }else{
+	        //l'Api a renvoyé un status error, on log l'erreur et on affiche
+	        component.setState({
+	            isLoaded:false,
+	            error : {'code' : data.error.code, 'message' : data.error.info }
+	        })
+	    }
+
             
         }).fail(function( jqxhr, settings, error ){
             //si une erreur est survenue à l'appel on la log dans une variable locale
