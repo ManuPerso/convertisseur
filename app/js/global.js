@@ -27,22 +27,30 @@ class Taux extends React.Component {
         items = []
         //récupération des nom des devises
         $.get(api+'symbols'+query_key,function(data){
-            $.map(data.symbols,function(name,code){
-                //recuperation des valeurs des devises
-                $.get(api+'latest'+query_key+'&symbols='+code,function(res){
-                    $.map(res.rates,function(value,code){	
-                        //Création d'une clé nécessaire à l'affichage des options (évite le warning de React)
-                        //restructuration des données pour ne conserver que l'essentiel.
-                        item = {key : code,  code : code, name:name,value:value }
-                        items[items.length] = item;
-                        //Mise à jour des variables locales.
-                        component.setState({
-                            isLoaded: true,
-                            items : items
+	    if(data.success){
+                $.map(data.symbols,function(name,code){
+                    //recuperation des valeurs des devises
+                    $.get(api+'latest'+query_key+'&symbols='+code,function(res){
+                        $.map(res.rates,function(value,code){	
+                            //Création d'une clé nécessaire à l'affichage des options (évite le warning de React)
+                            //restructuration des données pour ne conserver que l'essentiel.
+                            item = {key : code,  code : code, name:name,value:value }
+                            items[items.length] = item;
+                            //Mise à jour des variables locales.
+                            component.setState({
+                                isLoaded: true,
+                                items : items
 
+                            });
                         });
                     });
-                });
+		}else{
+		    //l'Api a renvoyé un status error, on log l'erreur et on affiche
+		    component.setState({
+		        isLoaded:false,
+		        error : {'code' : data.error.code, 'message' : data.error.info }
+		    })
+		}
             })
             
         }).fail(function( jqxhr, settings, error ){
