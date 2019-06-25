@@ -25,42 +25,51 @@ class Taux extends React.Component {
         //sauvegarde du contexte courant pour pouvoir l'utiliser à l'interieur du callback de retour de l'appel ajax ($.get)
         var component = this;
         items = []
+        date = new Date();
+        keyItems = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()+'-items';
         //récupération des nom des devises
-        $.get(api+'symbols'+query_key,function(data){
-	    if(data.success){
-                $.map(data.symbols,function(name,code){
-                    //recuperation des valeurs des devises
-                    $.get(api+'latest'+query_key+'&symbols='+code,function(res){
-                        $.map(res.rates,function(value,code){	
-                            //Création d'une clé nécessaire à l'affichage des options (évite le warning de React)
-                            //restructuration des données pour ne conserver que l'essentiel.
-                            item = {key : code,  code : code, name:name,value:value }
-                            items[items.length] = item;
-                            //Mise à jour des variables locales.
-                            component.setState({
-                                isLoaded: true,
-                                items : items
-
+        if(!localStorage.getItem(keyItems)){
+            $.get(api+'symbols'+query_key,function(data){
+                if(data.success){
+                        $.map(data.symbols,function(name,code){
+                            //recuperation des valeurs des devises
+                            $.get(api+'latest'+query_key+'&symbols='+code,function(res){
+                                $.map(res.rates,function(value,code){	
+                                    //Création d'une clé nécessaire à l'affichage des options (évite le warning de React)
+                                    //restructuration des données pour ne conserver que l'essentiel.
+                                    item = {key : code,  code : code, name:name,value:value }
+                                    items[items.length] = item;
+                                    //vu qu'on est sur un retour ajax, on est obligé de mettre à jours les items au fur et à mesure qu'ils sont crées
+                                    localStorage.setItem(keyItems,items);
+                                });
                             });
-                        });
+                        })
+                    
+                               
+                }else{
+                    //l'Api a renvoyé un status error, on log l'erreur et on affiche
+                    component.setState({
+                        isLoaded:false,
+                        error : {'code' : data.error.code, 'message' : data.error.info }
+                    })
+               }
+           }).fail(function( jqxhr, settings, error ){
+                    //si une erreur est survenue à l'appel on la log dans une variable locale
+                    component.setState({
+                        isLoaded: false,
+                        error
                     });
-            	})
-	    }else{
-	        //l'Api a renvoyé un status error, on log l'erreur et on affiche
-	        component.setState({
-	            isLoaded:false,
-	            error : {'code' : data.error.code, 'message' : data.error.info }
-	        })
-	    }
+              })    
+        }
+        items = localStorage.getItem(keyItems);
+        //Mise à jour des variables locales.
+        component.setState({
+            isLoaded: true,
+            items : items
 
-            
-        }).fail(function( jqxhr, settings, error ){
-            //si une erreur est survenue à l'appel on la log dans une variable locale
-            component.setState({
-                isLoaded: true,
-                error
-            });
-        })                
+        });
+           
+
     }
     /*
      * action du changement de valeur pour refaire les caculs
