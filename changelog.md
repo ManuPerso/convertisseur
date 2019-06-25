@@ -1,3 +1,5 @@
+## v2019.06.25-1
+- Par MR, mis à jour des global.js et du style
 ## v2019.06.11-4
 - MR, mise en garde sur le nombre de hit sur l'api fixer.io dans le README
 - MR, mise à jours de l'api key
