@@ -27,6 +27,7 @@ var Taux = function (_React$Component) {
             items = [];
             date = new Date();
             keyItems = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '-items';
+            console.log(keyItems);
             //récupération des nom des devises
             if (!localStorage.getItem(keyItems)) {
                 $.get(api + 'symbols' + query_key, function (data) {
@@ -39,10 +40,17 @@ var Taux = function (_React$Component) {
                                     //restructuration des données pour ne conserver que l'essentiel.
                                     item = { key: code, code: code, name: name, value: value };
                                     items[items.length] = item;
-                                    //vu qu'on est sur un retour ajax, on est obligé de mettre à jours les items au fur et à mesure qu'ils sont crées
-                                    localStorage.setItem(keyItems, items);
                                 });
+                                //vu qu'on est sur un retour ajax, on est obligé de mettre à jours les items au fur et à mesure qu'ils sont crées
+                                localStorage.setItem(keyItems, items);
                             });
+                        });
+                        items = localStorage.getItem(keyItems);
+                        //Mise à jour des variables locales.
+                        component.setState({
+                            isLoaded: true,
+                            items: items
+
                         });
                     } else {
                         //l'Api a renvoyé un status error, on log l'erreur et on affiche
@@ -59,13 +67,6 @@ var Taux = function (_React$Component) {
                     });
                 });
             }
-            items = localStorage.getItem(keyItems);
-            //Mise à jour des variables locales.
-            component.setState({
-                isLoaded: true,
-                items: items
-
-            });
         };
 
         _this.onchange = function (e) {
@@ -89,7 +90,7 @@ var Taux = function (_React$Component) {
 
             if (error) {
                 return React.createElement(
-                    'div',
+                    'span',
                     null,
                     'Erreur : ',
                     error.message

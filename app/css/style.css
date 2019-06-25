@@ -90,7 +90,16 @@ input {
     font-weight:bold;
     text-shadow: 2px 2px #000000;
 }
-
+/**
+ * style pour le message erreur
+ */
+span{
+    color : #ffcccc;
+    font-family:Roboto,sans-serif;
+    font-weight:bold;
+    text-shadow: 2px 2px #000000;
+    margin-left : 2%;
+}
 /**
  * definition du container des images
  * mise en position absolue et top 0 pour qu'il commence en haut à gauche
