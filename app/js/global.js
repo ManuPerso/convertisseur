@@ -25,7 +25,7 @@ class Taux extends React.Component {
      * fonction de gestion des erreurs
      */
     logErreur = (data) => {
-        component.setState({
+        this.setState({
             isLoaded:false,
             error : {'code' : data.error.code, 'message' : data.error.info }
         })
@@ -36,7 +36,7 @@ class Taux extends React.Component {
      */
     populateItems = (items) => {
         //Mise à jour des variables locales.
-        component.setState({
+        this.setState({
             isLoaded: true,
             items : items
 
@@ -83,7 +83,7 @@ class Taux extends React.Component {
                     });
                 }else{
                     //l'Api a renvoyé un status error, on log l'erreur et on affiche
-                    this.logErreur(valeurs);
+                    this.logErreur(data);
                 }
             },(error) => {
                 //si une erreur est survenue à l'appel on la log dans une variable locale
@@ -232,13 +232,12 @@ const elm =(
     <Euro />
     </React.Fragment>
 )
-//export de Euro pour pouvoir l'utiliser dans Taux
-export default Euro;
 /*
- * Réupération du container
+ * Récupération du container
  */
 const DomElm = document.querySelector('#container');
 /*
  * Rendu
  */
 ReactDOM.render(elm,DomElm);
+//export default Euro;

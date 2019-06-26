@@ -22,7 +22,7 @@ var Taux = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (Taux.__proto__ || Object.getPrototypeOf(Taux)).call(this, props));
 
         _this.logErreur = function (data) {
-            component.setState({
+            _this.setState({
                 isLoaded: false,
                 error: { 'code': data.error.code, 'message': data.error.info }
             });
@@ -30,7 +30,7 @@ var Taux = function (_React$Component) {
 
         _this.populateItems = function (items) {
             //Mise à jour des variables locales.
-            component.setState({
+            _this.setState({
                 isLoaded: true,
                 items: items
 
@@ -74,7 +74,7 @@ var Taux = function (_React$Component) {
                         });
                     } else {
                         //l'Api a renvoyé un status error, on log l'erreur et on affiche
-                        _this.logErreur(valeurs);
+                        _this.logErreur(data);
                     }
                 }, function (error) {
                     //si une erreur est survenue à l'appel on la log dans une variable locale
@@ -305,13 +305,12 @@ var elm = React.createElement(
     null,
     React.createElement(Euro, null)
 );
-//export de Euro pour pouvoir l'utiliser dans Taux
-export default Euro;
 /*
- * Réupération du container
+ * Récupération du container
  */
 var DomElm = document.querySelector('#container');
 /*
  * Rendu
  */
 ReactDOM.render(elm, DomElm);
+//export default Euro;
