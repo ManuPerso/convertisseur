@@ -1,3 +1,5 @@
+## v2019.06.26-1
+- Par MR, renseignement des items pour le select si le localStorage du jour existe
 ## v2019.06.25-1
 - Par MR, mis à jour des global.js et du style
 ## v2019.06.11-4
