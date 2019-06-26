@@ -66,6 +66,15 @@ var Taux = function (_React$Component) {
                         error: error
                     });
                 });
+            } else {
+                //chargement des items
+                items = localStorage.getItem(keyItems);
+                //Mise à jour des variables locales.
+                component.setState({
+                    isLoaded: true,
+                    items: items
+
+                });
             }
         };
 
