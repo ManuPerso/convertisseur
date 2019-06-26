@@ -1,3 +1,5 @@
+## v2019.06.26-4
+- Par MR, correction de l'export de variable
 ## v2019.06.26-3
 - Par MR, suppression de jQuery
 ## v2019.06.26-2
