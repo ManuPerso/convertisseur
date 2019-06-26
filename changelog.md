@@ -1,3 +1,5 @@
+## v2019.06.26-3
+- Par MR, suppression de jQuery
 ## v2019.06.26-2
 - Par MR, mise à jour du README
 ## v2019.06.26-1

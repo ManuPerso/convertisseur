@@ -21,45 +21,62 @@ var Taux = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (Taux.__proto__ || Object.getPrototypeOf(Taux)).call(this, props));
 
+        _this.logErreur = function (data) {
+            component.setState({
+                isLoaded: false,
+                error: { 'code': data.error.code, 'message': data.error.info }
+            });
+        };
+
+        _this.populateItems = function (items) {
+            //Mise à jour des variables locales.
+            component.setState({
+                isLoaded: true,
+                items: items
+
+            });
+        };
+
         _this.componentDidMount = function () {
             //sauvegarde du contexte courant pour pouvoir l'utiliser à l'interieur du callback de retour de l'appel ajax ($.get)
             var component = _this;
             items = [];
             date = new Date();
             keyItems = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '-items';
-            console.log(keyItems);
             //récupération des nom des devises
             if (!localStorage.getItem(keyItems)) {
-                $.get(api + 'symbols' + query_key, function (data) {
+                fetch(api + 'symbols' + query_key).then(function (reponse) {
+                    return reponse.json();
+                }).then(function (data) {
                     if (data.success) {
-                        $.map(data.symbols, function (name, code) {
-                            //recuperation des valeurs des devises
-                            $.get(api + 'latest' + query_key + '&symbols=' + code, function (res) {
-                                $.map(res.rates, function (value, code) {
-                                    //Création d'une clé nécessaire à l'affichage des options (évite le warning de React)
-                                    //restructuration des données pour ne conserver que l'essentiel.
-                                    item = { key: code, code: code, name: name, value: value };
-                                    items[items.length] = item;
-                                });
-                                //vu qu'on est sur un retour ajax, on est obligé de mettre à jours les items au fur et à mesure qu'ils sont crées
+                        data.symbols.map(function (code, name) {
+                            fetch(api + 'latest' + query_key + '&symbols=' + code).then(function (response) {
+                                return response.json();
+                            }).then(function (valeurs) {
+                                if (valeurs.success) {
+                                    valeurs.rates.map(function (cle, valeur) {
+                                        item = { key: cle, code: cle, name: name, value: valeur };
+                                        items[items.length] = item;
+                                    });
+                                } else {
+                                    //l'Api a renvoyé un status error, on log l'erreur et on affiche
+                                    _this.logErreur(valeurs);
+                                }
                                 localStorage.setItem(keyItems, items);
+                                _this.populateItems(items);
+                            }, function (error) {
+                                //si une erreur est survenue à l'appel on la log dans une variable locale
+                                component.setState({
+                                    isLoaded: false,
+                                    error: error
+                                });
                             });
-                        });
-                        items = localStorage.getItem(keyItems);
-                        //Mise à jour des variables locales.
-                        component.setState({
-                            isLoaded: true,
-                            items: items
-
                         });
                     } else {
                         //l'Api a renvoyé un status error, on log l'erreur et on affiche
-                        component.setState({
-                            isLoaded: false,
-                            error: { 'code': data.error.code, 'message': data.error.info }
-                        });
+                        _this.logErreur(valeurs);
                     }
-                }).fail(function (jqxhr, settings, error) {
+                }, function (error) {
                     //si une erreur est survenue à l'appel on la log dans une variable locale
                     component.setState({
                         isLoaded: false,
@@ -69,25 +86,15 @@ var Taux = function (_React$Component) {
             } else {
                 //chargement des items
                 items = localStorage.getItem(keyItems);
-                //Mise à jour des variables locales.
-                component.setState({
-                    isLoaded: true,
-                    items: items
-
-                });
+                _this.populateItems(items);
             }
         };
 
         _this.onchange = function (e) {
             //Propagation de l'evenement
             e.preventDefault();
-            //récupération du champs de saisie
-            current = $('#index');
-            //recupération de la valeur de la devise
-            devise = $('#devise');
-            calc = parseFloat(current.val()) * parseFloat(devise.val());
-            //calcul et affichage
-            $('#calcul').val(isNaN(calc) ? 0 : calc.toFixed(2));
+            //relance du calcul
+            Euro.onchange(e);
         };
 
         _this.render = function () {
@@ -135,8 +142,21 @@ var Taux = function (_React$Component) {
             items: []
             //déclaration de la methode onchange
         };_this.onchange = _this.onchange.bind(_this);
+        //declaration de la methode logErreur
+        _this.logErreur = _this.logErreur.bind(_this);
+        //declaration de la methode populateItems
+        _this.populateItems = _this.populateItems.bind(_this);
         return _this;
     }
+    /**
+     * fonction de gestion des erreurs
+     */
+
+    /*
+     * mettre à jours les valeurs des options du select
+     * @param items : [{key,code,value},...]
+     */
+
     /*
      * Equivalent à un init
      * permet de remplir les items pour servir les options du select
@@ -165,20 +185,20 @@ var Euro = function (_React$Component2) {
 
         _this2.onChange = function (e) {
             //si l'évenement vient du champs de saisi, remise de l'etat locale devise à EUR
-            if ($(e.target).attr('id') == 'index') _this2.setState({ devise: 'EUR' });
+            if (e.target.id == 'index') _this2.setState({ devise: 'EUR' });
             //propagation de l'evenemment aux autres ecouteurs. 
             e.preventDefault();
             //recupèration de la saisi 
-            current = $('#index');
+            current = document.getElementById('index');
             //Remplacement des éventuel "," par des "." pour rester cohérent avec un Float
-            current.val(current.val().replace(',', '.'));
+            current.value = current.value.replace(',', '.');
             //Récupération du taux de convertion
-            devise = $('#devise');
+            devise = document.getElementById('devise');
             //calcul (la clé de fixer.io ne permet pas d'utiliser l'api convert)
-            calc = parseFloat(current.val()) * parseFloat(devise.val());
-            if (typeof current.val() != "undefined") {
+            calc = parseFloat(current.value) * parseFloat(devise.value);
+            if (typeof current.value != "undefined") {
                 //Mise à jour de l'état local
-                _this2.setState({ value: current.val(), calcul: isNaN(calc) ? 0 : calc.toFixed(2) });
+                _this2.setState({ value: current.value, calcul: isNaN(calc) ? 0 : calc.toFixed(2) });
             } else {
                 //Remise à 0 du calcul
                 _this2.setState({ calcul: 0 });
@@ -285,6 +305,8 @@ var elm = React.createElement(
     null,
     React.createElement(Euro, null)
 );
+//export de Euro pour pouvoir l'utiliser dans Taux
+export default Euro;
 /*
  * Réupération du container
  */
