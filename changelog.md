@@ -1,3 +1,5 @@
+## v2019.06.26-2
+- Par MR, mise à jour du README
 ## v2019.06.26-1
 - Par MR, renseignement des items pour le select si le localStorage du jour existe
 ## v2019.06.25-1
