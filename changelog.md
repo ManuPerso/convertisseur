@@ -1,3 +1,5 @@
+## v2019.06.27-1
+- Par MR, modification de méthode et de définition de bind pour acceder à la fonction onchange de Euro
 ## v2019.06.26-4
 - Par MR, correction de l'export de variable
 ## v2019.06.26-3
