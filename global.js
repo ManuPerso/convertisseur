@@ -1,3 +1,5 @@
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -8,7 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * Definition de constante pour l'api fixer.io
  */
 var api = 'http://data.fixer.io/api/';
-var query_key = '?access_key=64002fb6dcfb7e1921dd492f5b3c8393';
+var query_key = '?access_key=a0e2f8391993a977d093305fe8d082b8';
 /**
  * Class servant à récupérer les taux sur fixer.io
  */
@@ -39,7 +41,6 @@ var Taux = function (_React$Component) {
 
         _this.componentDidMount = function () {
             //sauvegarde du contexte courant pour pouvoir l'utiliser à l'interieur du callback de retour de l'appel ajax ($.get)
-            var component = _this;
             items = [];
             date = new Date();
             keyItems = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '-items';
@@ -49,12 +50,22 @@ var Taux = function (_React$Component) {
                     return reponse.json();
                 }).then(function (data) {
                     if (data.success) {
-                        data.symbols.map(function (code, name) {
+                        //Récuperation des valeurs des devises
+                        Object.entries(data.symbols).map(function (_ref) {
+                            var _ref2 = _slicedToArray(_ref, 2),
+                                code = _ref2[0],
+                                name = _ref2[1];
+
                             fetch(api + 'latest' + query_key + '&symbols=' + code).then(function (response) {
                                 return response.json();
                             }).then(function (valeurs) {
                                 if (valeurs.success) {
-                                    valeurs.rates.map(function (cle, valeur) {
+                                    //construction des valeurs pour les states de Taux
+                                    Object.entries(valeurs.rates).map(function (_ref3) {
+                                        var _ref4 = _slicedToArray(_ref3, 2),
+                                            cle = _ref4[0],
+                                            valeur = _ref4[1];
+
                                         item = { key: cle, code: cle, name: name, value: valeur };
                                         items[items.length] = item;
                                     });
@@ -62,11 +73,13 @@ var Taux = function (_React$Component) {
                                     //l'Api a renvoyé un status error, on log l'erreur et on affiche
                                     _this.logErreur(valeurs);
                                 }
-                                localStorage.setItem(keyItems, items);
+                                //stockage en session pour ne pas à avoir à pinger l'api plusieur fois dans une journée
+                                localStorage.setItem(keyItems, JSON.stringify(items));
+                                //Mise à jour des paramètres de classe
                                 _this.populateItems(items);
                             }, function (error) {
                                 //si une erreur est survenue à l'appel on la log dans une variable locale
-                                component.setState({
+                                _this.setState({
                                     isLoaded: false,
                                     error: error
                                 });
@@ -78,14 +91,15 @@ var Taux = function (_React$Component) {
                     }
                 }, function (error) {
                     //si une erreur est survenue à l'appel on la log dans une variable locale
-                    component.setState({
+                    _this.setState({
                         isLoaded: false,
                         error: error
                     });
                 });
             } else {
-                //chargement des items
-                items = localStorage.getItem(keyItems);
+                //chargement des items du cache
+                items = JSON.parse(localStorage.getItem(keyItems));
+                //Mise à jour des paramètres de classe
                 _this.populateItems(items);
             }
         };
@@ -94,7 +108,7 @@ var Taux = function (_React$Component) {
             //Propagation de l'evenement
             e.preventDefault();
             //relance du calcul
-            Euro.onchange(e);
+            Euro.onChange(e);
         };
 
         _this.render = function () {
@@ -189,11 +203,11 @@ var Euro = function (_React$Component2) {
             //propagation de l'evenemment aux autres ecouteurs. 
             e.preventDefault();
             //recupèration de la saisi 
-            current = document.getElementById('index');
+            current = document.querySelector('#index');
             //Remplacement des éventuel "," par des "." pour rester cohérent avec un Float
             current.value = current.value.replace(',', '.');
             //Récupération du taux de convertion
-            devise = document.getElementById('devise');
+            devise = document.querySelector('#devise');
             //calcul (la clé de fixer.io ne permet pas d'utiliser l'api convert)
             calc = parseFloat(current.value) * parseFloat(devise.value);
             if (typeof current.value != "undefined") {
@@ -211,9 +225,9 @@ var Euro = function (_React$Component2) {
             //Vérification de l'etat locale de la devise pour faire le bon calcul
             switch (_this2.state.devise) {
                 case 'DEV':
-                    if ($('#calcul').val()) {
+                    if (typeof document.getElementById('calcul').value != 'undefined') {
                         //récupération de la valeur calculé et modification de la valeur d'entrée
-                        $('#index').val(parseFloat($('#calcul').val()));
+                        document.getElementById('index').value = parseFloat(document.getElementById('calcul').value);
                         //Appel de l'event onchange de la classe pour mettre à jour.
                         _this2.onChange(e);
                         //mise à jour de la variable locale.
@@ -221,10 +235,10 @@ var Euro = function (_React$Component2) {
                     }
                     break;
                 case 'EUR':
-                    calc = parseFloat($('#index').val()) / parseFloat($('#devise').val());
+                    calc = parseFloat(document.getElementById('index').value) / parseFloat(document.getElementById('devise').value);
                     if (!isNaN(calc)) {
                         //pour ce cas on est obligé de garder au moins 5 decimal pour conserver le chiffre juste dans la case calcul
-                        $('#index').val(calc.toFixed(5));
+                        document.getElementById('index').value = calc.toFixed(5);
                         //Appel de l'event onchange pour mettre à jour le calcul
                         _this2.onChange(e);
                         //mise à jour de la variable locale, permet de switcher plusieurs fois tout en gardant le bon chiffre.
@@ -277,6 +291,7 @@ var Euro = function (_React$Component2) {
             devise: 'EUR'
         };
         _this2.onChange = _this2.onChange.bind(_this2);
+        Euro.onChange = _this2.onChange.bind(_this2);
         return _this2;
     }
     /*

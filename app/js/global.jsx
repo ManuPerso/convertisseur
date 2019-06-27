@@ -2,7 +2,7 @@
  * Definition de constante pour l'api fixer.io
  */
 const api='http://data.fixer.io/api/';
-const query_key='?access_key=64002fb6dcfb7e1921dd492f5b3c8393';
+const query_key='?access_key=a0e2f8391993a977d093305fe8d082b8';
 /**
  * Class servant à récupérer les taux sur fixer.io
  */
@@ -48,7 +48,6 @@ class Taux extends React.Component {
      */
     componentDidMount = () => {
         //sauvegarde du contexte courant pour pouvoir l'utiliser à l'interieur du callback de retour de l'appel ajax ($.get)
-        var component = this;
         items = []
         date = new Date();
         keyItems = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()+'-items';
@@ -56,11 +55,13 @@ class Taux extends React.Component {
         if(!localStorage.getItem(keyItems)){
             fetch(api+'symbols'+query_key).then((reponse) => reponse.json()).then((data) => {
                 if(data.success){
-                    data.symbols.map((code,name) => {
+                  //Récuperation des valeurs des devises
+                  Object.entries(data.symbols).map(([code,name]) => {
                        fetch(api+'latest'+query_key+'&symbols='+code).then(
                            (response) => response.json()).then((valeurs) => {
                                if(valeurs.success){
-                                  valeurs.rates.map((cle,valeur) => {
+                                  //construction des valeurs pour les states de Taux
+                                  Object.entries(valeurs.rates).map(([cle,valeur]) => {
                                     item = {key : cle,  code : cle, name:name,value:valeur };
                                     items[items.length]=item;
                                   }) 
@@ -68,12 +69,14 @@ class Taux extends React.Component {
                                    //l'Api a renvoyé un status error, on log l'erreur et on affiche
                                    this.logErreur(valeurs);
                                }
-                               localStorage.setItem(keyItems,items);
+                               //stockage en session pour ne pas à avoir à pinger l'api plusieur fois dans une journée
+                               localStorage.setItem(keyItems,JSON.stringify(items));
+                               //Mise à jour des paramètres de classe
                                this.populateItems(items);
                             },
                             (error) => {
                                 //si une erreur est survenue à l'appel on la log dans une variable locale
-                                component.setState({
+                                this.setState({
                                     isLoaded: false,
                                     error
                                 });
@@ -87,14 +90,15 @@ class Taux extends React.Component {
                 }
             },(error) => {
                 //si une erreur est survenue à l'appel on la log dans une variable locale
-                component.setState({
+                this.setState({
                     isLoaded: false,
                     error
                 });
             });
         }else{
-            //chargement des items
-            items = localStorage.getItem(keyItems);
+            //chargement des items du cache
+            items = JSON.parse(localStorage.getItem(keyItems));
+            //Mise à jour des paramètres de classe
             this.populateItems(items);
 
         }
@@ -110,7 +114,7 @@ class Taux extends React.Component {
         //Propagation de l'evenement
         e.preventDefault();
         //relance du calcul
-        Euro.onchange(e); 
+        Euro.onChange(e) 
     }
         
     render = () =>{
@@ -146,6 +150,7 @@ class Euro extends React.Component {
             devise : 'EUR'
         }
         this.onChange = this.onChange.bind(this)
+        Euro.onChange = this.onChange.bind(this)
     }
     /*
      * changement de valeur et recalcul
@@ -157,11 +162,11 @@ class Euro extends React.Component {
         //propagation de l'evenemment aux autres ecouteurs. 
         e.preventDefault();
         //recupèration de la saisi 
-        current = document.getElementById('index');
+        current = document.querySelector('#index');
         //Remplacement des éventuel "," par des "." pour rester cohérent avec un Float
         current.value = current.value.replace(',','.')
         //Récupération du taux de convertion
-        devise = document.getElementById('devise');
+        devise = document.querySelector('#devise');
         //calcul (la clé de fixer.io ne permet pas d'utiliser l'api convert)
         calc = parseFloat(current.value)*parseFloat(devise.value)
         if(typeof current.value != "undefined"){
@@ -181,9 +186,9 @@ class Euro extends React.Component {
         //Vérification de l'etat locale de la devise pour faire le bon calcul
         switch(this.state.devise){
             case 'DEV' :
-                if($('#calcul').val()){
+                if(typeof document.getElementById('calcul').value != 'undefined'){
                     //récupération de la valeur calculé et modification de la valeur d'entrée
-                    $('#index').val(parseFloat($('#calcul').val()));
+                    document.getElementById('index').value =parseFloat(document.getElementById('calcul').value);
                     //Appel de l'event onchange de la classe pour mettre à jour.
                     this.onChange(e)
                     //mise à jour de la variable locale.
@@ -191,10 +196,10 @@ class Euro extends React.Component {
                 }
                 break;
             case 'EUR' :
-                calc = parseFloat($('#index').val())/parseFloat($('#devise').val())
+                calc = parseFloat(document.getElementById('index').value)/parseFloat(document.getElementById('devise').value)
                 if(!isNaN(calc)){
                     //pour ce cas on est obligé de garder au moins 5 decimal pour conserver le chiffre juste dans la case calcul
-                    $('#index').val(calc.toFixed(5))
+                    document.getElementById('index').value=calc.toFixed(5)
                     //Appel de l'event onchange pour mettre à jour le calcul
                     this.onChange(e)
                     //mise à jour de la variable locale, permet de switcher plusieurs fois tout en gardant le bon chiffre.
